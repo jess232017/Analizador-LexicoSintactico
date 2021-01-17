@@ -1,0 +1,79 @@
+digraph G {node [shape=box, style=filled, fontsize=14, color="#40b9e5" fontcolor="#FFFFFF"]; edge[color=gray50 fontcolor=gray50];rankdir=UD 
+graph [ dpi = 300];
+
+"27 main"  [label="main", color="#ffa500"]
+"26 Sentencia" [label="Sentencia", color="#40b9e5"]
+"26 Sentencia"  [label="Sentencia", color="#40b9e5"]
+"1 Declaración" [label="Declaración", color="#FF0000"]
+"1 Declaración"  [label="Declaración", color="#FF0000"]
+"2 int" [label="int", color="#8A2BE2"]
+"1 Declaración"  [label="Declaración", color="#FF0000"]
+"3 contador" [label="contador", color="#8A2BE2"]
+"1 Declaración"  [label="Declaración", color="#FF0000"]
+"4 =" [label="=", color="#8A2BE2"]
+"1 Declaración"  [label="Declaración", color="#FF0000"]
+"5 0" [label="0", color="#8A2BE2"]
+"26 Sentencia"  [label="Sentencia", color="#40b9e5"]
+"22 Do_While" [label="Do_While", color="#8A2BE2"]
+"22 Do_While"  [label="Do_While", color="#8A2BE2"]
+"23 do" [label="do", color="#8A2BE2"]
+"22 Do_While"  [label="Do_While", color="#8A2BE2"]
+"17 Sentencia" [label="Sentencia", color="#40b9e5"]
+"17 Sentencia"  [label="Sentencia", color="#40b9e5"]
+"7 Declaración" [label="Declaración", color="#FF0000"]
+"7 Declaración"  [label="Declaración", color="#FF0000"]
+"8 System" [label="System", color="#8A2BE2"]
+"7 Declaración"  [label="Declaración", color="#FF0000"]
+"9 out" [label="out", color="#8A2BE2"]
+"7 Declaración"  [label="Declaración", color="#FF0000"]
+"10 println" [label="println", color="#8A2BE2"]
+"7 Declaración"  [label="Declaración", color="#FF0000"]
+"11 \"Contando... \"" [label="\"Contando... \"", color="#8A2BE2"]
+"17 Sentencia"  [label="Sentencia", color="#40b9e5"]
+"13 Declaración" [label="Declaración", color="#FF0000"]
+"13 Declaración"  [label="Declaración", color="#FF0000"]
+"14 contador" [label="contador", color="#8A2BE2"]
+"13 Declaración"  [label="Declaración", color="#FF0000"]
+"15 +=" [label="+=", color="#8A2BE2"]
+"13 Declaración"  [label="Declaración", color="#FF0000"]
+"16 1" [label="1", color="#8A2BE2"]
+"22 Do_While"  [label="Do_While", color="#8A2BE2"]
+"24 while" [label="while", color="#8A2BE2"]
+"22 Do_While"  [label="Do_While", color="#8A2BE2"]
+"25 Condición" [label="Condición", color="#2345FF"]
+"25 Condición"  [label="Condición", color="#2345FF"]
+"18 Boole" [label="Boole", color="#e81e62"]
+"18 Boole"  [label="Boole", color="#e81e62"]
+"19 contador" [label="contador", color="#8A2BE2"]
+"18 Boole"  [label="Boole", color="#e81e62"]
+"20 <" [label="<", color="#8A2BE2"]
+"18 Boole"  [label="Boole", color="#e81e62"]
+"21 10" [label="10", color="#8A2BE2"]
+
+"27 main" -> "26 Sentencia"
+"26 Sentencia" -> "1 Declaración"
+"1 Declaración" -> "2 int"
+"1 Declaración" -> "3 contador"
+"1 Declaración" -> "4 ="
+"1 Declaración" -> "5 0"
+"26 Sentencia" -> "22 Do_While"
+"22 Do_While" -> "23 do"
+"22 Do_While" -> "17 Sentencia"
+"17 Sentencia" -> "7 Declaración"
+"7 Declaración" -> "8 System"
+"7 Declaración" -> "9 out"
+"7 Declaración" -> "10 println"
+"7 Declaración" -> "11 \"Contando... \""
+"17 Sentencia" -> "13 Declaración"
+"13 Declaración" -> "14 contador"
+"13 Declaración" -> "15 +="
+"13 Declaración" -> "16 1"
+"22 Do_While" -> "24 while"
+"22 Do_While" -> "25 Condición"
+"25 Condición" -> "18 Boole"
+"18 Boole" -> "19 contador"
+"18 Boole" -> "20 <"
+"18 Boole" -> "21 10"
+
+
+}

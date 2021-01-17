@@ -1,0 +1,743 @@
+package ProjectTC.Analizador;
+import java_cup.runtime.Symbol;
+
+parser code
+{:
+    public String resultado="";
+    public int contador = 1;
+    public Nodo padre;
+    private Symbol s;
+
+    @Override
+    public void syntax_error(Symbol s){
+        resultado +=  "Error Sintactico en la Linea " + (s.right+1) +" Columna "+s.left+ ". Identificador " +s.value + " no reconocido.\n";
+        System.out.println("Error Sintactico en la Linea " + (s.right+1) +" Columna "+s.left+ ". Identificador " +s.value + " no reconocido." );
+    }
+
+    public Symbol getS(){
+        return this.s;
+    }
+:};
+
+action code
+{:
+
+:}
+
+terminal    String  Linea, Void, Comillas, T_dato, Int, Cadena, If, Else, Do, While, For;
+terminal    String  Igual, Suma, Resta, Multiplicacion, Division, Mod, Op_logico, Op_relacional;
+terminal    String  Op_atribucion, Op_incremento, Op_booleano, Parentesis_a, Parentesis_c;
+terminal    String  Llave_a, Llave_c, Corchete_a, Corchete_c, Main, P_coma, Identificador;
+terminal    String  Numero, Evitar, Captura_do, Arreglo_Float, Matriz_e, Captura_t, Dos_puntos;
+terminal    String  Importe, New, Arreglo_Int, Impresion_p, Importacion, Matriz_s, Punto, paquete, Clase_p;
+terminal    String  Public, Clase_s, Matriz_c, casos, Private, Arreglo_String, Texto, ERROR;
+
+non terminal  Object  INICIO, CLASE;
+non terminal  Object  SENTENCIA, DECLARACION, DECLARACION_FOR, IF, IF_ELSE;
+non terminal  Object  WHILE, DO_WHILE, FOR, SENTENCIA_BOOLEANA, SENTENCIA_FOR;
+
+
+start with CLASE;
+
+CLASE::=
+    Importe paquete Identificador P_coma Clase_p Identificador Llave_a INICIO Llave_c
+    |Importe Clase_p Identificador Llave_a INICIO Llave_c
+    |paquete Identificador P_coma & Clase_p Identificador Llave_a INICIO Llave_c
+    |Clase_p Identificador Llave_a INICIO Llave_c
+;
+
+INICIO::= 
+    Clase_s Void Main Parentesis_a Arreglo_String Identificador Parentesis_c Llave_a SENTENCIA:obj Llave_c
+    {: 
+        Nodo tmp = new Nodo("main",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        parser.padre = (Nodo) tmp;
+        System.out.println("OK");
+        RESULT=tmp;
+    :}
+    |Clase_s Void Identificador:id Parentesis_a Arreglo_String Identificador Parentesis_c Llave_a SENTENCIA:obj Llave_c
+    {: 
+        Nodo tmp = new Nodo(id,parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        parser.padre = (Nodo) tmp;
+        System.out.println("OK");
+        RESULT=tmp;
+    :}
+    |Main Parentesis_a Parentesis_c Llave_a SENTENCIA:obj Llave_c //C
+    {:
+        Nodo tmp = new Nodo("main",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        parser.padre = (Nodo) tmp;
+        System.out.println("OK");
+        RESULT=tmp;
+    :}
+;
+
+SENTENCIA ::= 
+    SENTENCIA:obj DECLARACION:obj2{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        tmp.addHijo((Nodo)obj2);
+        RESULT=tmp;
+    :}
+    |DECLARACION:obj
+    {:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        RESULT=obj;
+    :}
+    |SENTENCIA:obj IF:obj2{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        tmp.addHijo((Nodo)obj2);
+        RESULT=tmp;
+    :}
+    |IF:obj{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        RESULT=tmp;
+    :}
+    |SENTENCIA:obj IF_ELSE:obj2{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        tmp.addHijo((Nodo)obj2);
+        RESULT=tmp;
+    :}
+    |IF_ELSE:obj{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        RESULT=tmp;
+    :}
+    |SENTENCIA:obj WHILE:obj2{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        tmp.addHijo((Nodo)obj2);
+        RESULT=tmp;
+    :}
+    |WHILE:obj{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        RESULT=tmp;
+    :}
+    |SENTENCIA:obj DO_WHILE:obj2{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        tmp.addHijo((Nodo)obj2);
+        RESULT=tmp;
+    :}
+    |DO_WHILE:obj{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        RESULT=tmp;
+    :}
+    |SENTENCIA:obj FOR:obj2{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        tmp.addHijo((Nodo)obj2);
+        RESULT=tmp;
+    :}
+    |FOR:obj{:
+	Nodo tmp = new Nodo("Sentencia",parser.contador++);
+        tmp.addHijo((Nodo)obj);
+        RESULT=tmp;
+    :}
+;
+
+DECLARACION ::= 
+    Identificador:dato Igual Identificador:dato2 Division Identificador:dato3 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo("=",parser.contador++);
+        Nodo nudo3 = new Nodo(dato2,parser.contador++);
+        Nodo nudo4 = new Nodo("/",parser.contador++);
+        Nodo nudo5 = new Nodo(dato3,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        tmp.addHijo(nudo5);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Igual Identificador:dato2 Multiplicacion Identificador:dato3 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo("=",parser.contador++);
+        Nodo nudo3 = new Nodo(dato2,parser.contador++);
+        Nodo nudo4 = new Nodo("*",parser.contador++);
+        Nodo nudo5 = new Nodo(dato3,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        tmp.addHijo(nudo5);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Igual Identificador:dato2 Resta Identificador:dato3 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo("=",parser.contador++);
+        Nodo nudo3 = new Nodo(dato2,parser.contador++);
+        Nodo nudo4 = new Nodo("-",parser.contador++);
+        Nodo nudo5 = new Nodo(dato3,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        tmp.addHijo(nudo5);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Igual Identificador:dato2 Suma Identificador:dato3 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo("=",parser.contador++);
+        Nodo nudo3 = new Nodo(dato2,parser.contador++);
+        Nodo nudo4 = new Nodo("+",parser.contador++);
+        Nodo nudo5 = new Nodo(dato3,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        tmp.addHijo(nudo5);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Op_atribucion:id Identificador:dato2 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo(dato2,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Op_atribucion:id Numero:dato2 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo(dato2,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Igual Identificador:dato2 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo("=",parser.contador++);
+        Nodo nudo3 = new Nodo(dato2,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Identificador:id Igual New Identificador:id2 Parentesis_a Identificador Punto Identificador Parentesis_c P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo("=",parser.contador++);
+        Nodo nudo4 = new Nodo(id2,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Punto Identificador:id Punto Identificador:id2 Parentesis_a Parentesis_c P_coma
+    {:
+        Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo(id2,parser.contador++);
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Punto Identificador:id Punto Identificador:id2 Parentesis_a Texto:text Parentesis_c P_coma
+    {:
+        Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo(id2,parser.contador++);
+        //String Cadena = text.toString().replaceAll("\"", ""); //Reemplaza los "" por vacio
+        String Cadena = text.toString().replaceAll("\"", "\\\\\"");
+        Nodo nudo4 = new Nodo(Cadena,parser.contador++);
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Punto Identificador:id Punto Identificador:id2 Parentesis_a Texto:text Suma Identificador:id3 Parentesis_c P_coma
+    {:
+        Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo(id2,parser.contador++);
+        String Cadena = text.toString().replaceAll("\"", "\\\\\"");
+        Nodo nudo4 = new Nodo(Cadena,parser.contador++);
+        Nodo nudo5 = new Nodo("+",parser.contador++);
+        Nodo nudo6 = new Nodo(id3,parser.contador++);
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        tmp.addHijo(nudo5);
+        tmp.addHijo(nudo6);
+        RESULT=tmp;
+    :}
+
+    |Identificador:dato Igual Identificador:id Punto Identificador:id2 Parentesis_a Parentesis_c P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo("=",parser.contador++);
+        Nodo nudo3 = new Nodo(id,parser.contador++);
+        Nodo nudo4 = new Nodo(id2,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        RESULT=tmp;
+    :}
+
+    |Identificador:id Igual Numero:num P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo("=",parser.contador++));
+        tmp.addHijo(new Nodo(num,parser.contador++));
+        RESULT=tmp;
+    :}
+
+    |Int:id Identificador:id2 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(id2,parser.contador++));
+        RESULT=tmp;
+    :}
+
+    |Int Identificador:id Op_atribucion:op Numero:num P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        tmp.addHijo(new Nodo("int",parser.contador++));
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(op,parser.contador++));
+        tmp.addHijo(new Nodo(num,parser.contador++));
+        RESULT=tmp;
+    :}
+
+    |Int Identificador:id Igual Numero:num P_coma 
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        tmp.addHijo(new Nodo("int",parser.contador++));
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo("=",parser.contador++));
+        tmp.addHijo(new Nodo(num,parser.contador++));
+        RESULT=tmp;
+    :}
+
+    |Int Identificador:id Op_incremento:id2 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        tmp.addHijo(new Nodo("int",parser.contador++));
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(id2,parser.contador++));
+        RESULT=tmp;
+    :}
+
+    |Int Op_incremento:id Identificador:id2 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        tmp.addHijo(new Nodo("int",parser.contador++));
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(id2,parser.contador++));
+        RESULT=tmp;
+    :}
+
+    |T_dato:dato Identificador:id P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+
+        Nodo nudo3 = new Nodo(";",parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        RESULT=tmp;
+    :}
+
+    |T_dato:id Identificador:id2 Op_atribucion:id3 Numero:id4 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(id2,parser.contador++));
+        tmp.addHijo(new Nodo(id3,parser.contador++));
+        tmp.addHijo(new Nodo(id4,parser.contador++));
+        RESULT=tmp;
+    :}
+
+    |T_dato:dato Identificador:id Igual Numero:num P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo("=",parser.contador++);
+        Nodo nudo4 = new Nodo(num,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        RESULT=tmp;
+    :}
+
+    |T_dato:dato Identificador:id Igual Identificador:id2 Punto Identificador:id3 Parentesis_a Parentesis_c P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo("=",parser.contador++);
+        Nodo nudo4 = new Nodo(id2,parser.contador++);
+        Nodo nudo5 = new Nodo(id3,parser.contador++);
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        tmp.addHijo(nudo4);
+        RESULT=tmp;
+    :}
+
+    |T_dato:dato Identificador:id Igual Texto:tex P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo("=",parser.contador++);
+        String Cadena = tex.toString().replaceAll("\"", "\\\\\"");
+        Nodo nudo4 = new Nodo(Cadena,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        RESULT=tmp;
+    :}
+
+    |T_dato:dato Identificador:id Op_incremento:id2 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo(id2,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        RESULT=tmp;
+    :}
+
+    |T_dato:dato Op_incremento:id Identificador:id2 P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(dato,parser.contador++);
+        Nodo nudo2 = new Nodo(id,parser.contador++);
+        Nodo nudo3 = new Nodo(id2,parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        RESULT=tmp;
+    :}
+
+    |Cadena:id Identificador:id2 Op_atribucion:id3 Comillas Comillas P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(id,parser.contador++);
+        Nodo nudo2 = new Nodo(id2,parser.contador++);
+        Nodo nudo3 = new Nodo(id3,parser.contador++);
+        Nodo nudo4 = new Nodo("\\\\\"" + "\\\\\"",parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        RESULT=tmp;
+    :}
+
+    |Cadena:id Identificador:id2 Igual Comillas Comillas P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(id,parser.contador++);
+        Nodo nudo2 = new Nodo(id2,parser.contador++);
+        Nodo nudo3 = new Nodo("=",parser.contador++);
+        Nodo nudo4 = new Nodo("\\\\\"" + "\\\\\"",parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        RESULT=tmp;
+    :}
+
+    |Cadena:id Identificador:id2 Op_atribucion:id3 Comillas Identificador:id4 Comillas P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(id,parser.contador++);
+        Nodo nudo2 = new Nodo(id2,parser.contador++);
+        Nodo nudo3 = new Nodo(id3,parser.contador++);
+        Nodo nudo4 = new Nodo("\\\\\"" + id4 +  "\\\\\"",parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        RESULT=tmp;
+    :}
+
+    |Cadena:id Identificador:id2 Igual Comillas Identificador:id3 Comillas P_coma
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        Nodo nudo1 = new Nodo(id,parser.contador++);
+        Nodo nudo2 = new Nodo(id2,parser.contador++);
+        Nodo nudo3 = new Nodo("=",parser.contador++);
+        Nodo nudo4 = new Nodo("\\\\\"" + id3 +  "\\\\\"",parser.contador++);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        RESULT=tmp;
+    :}
+;
+
+IF ::= 
+    If Parentesis_a SENTENCIA_BOOLEANA:obj Parentesis_c Llave_a SENTENCIA:obj2 Llave_c
+    {:
+        Nodo tmp= new Nodo("IF",parser.contador++);
+
+        Nodo nudo1 = new Nodo("if",parser.contador++);
+        
+        Nodo nudo2 = new Nodo("Condición",parser.contador++);
+        nudo2.addHijo((Nodo)obj);
+
+        Nodo nudo3 = new Nodo("Sentencia",parser.contador++);
+        nudo3.addHijo((Nodo)obj2);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        RESULT=tmp;
+    :};
+
+SENTENCIA_BOOLEANA ::= 
+    Identificador:id Mod Numero:num Op_relacional:op Numero:num2
+    {:
+	Nodo tmp = new Nodo("Boole",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo("%",parser.contador++));
+        tmp.addHijo(new Nodo(num,parser.contador++));
+        tmp.addHijo(new Nodo(op,parser.contador++));
+        tmp.addHijo(new Nodo(num2,parser.contador++));
+        RESULT=tmp;
+    :}
+    |Op_booleano:id
+    {:
+	Nodo tmp = new Nodo(id,parser.contador++);
+        RESULT=tmp;
+    :}
+    |Identificador:id Op_relacional:op Op_booleano:op2
+    {:
+	Nodo tmp = new Nodo("Boole",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(op,parser.contador++));
+        tmp.addHijo(new Nodo(op2,parser.contador++));
+        RESULT=tmp;
+    :}
+    |Identificador:id Op_relacional:op Numero:num
+    {:
+	Nodo tmp = new Nodo("Boole",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(op,parser.contador++));
+        tmp.addHijo(new Nodo(num,parser.contador++));
+        RESULT=tmp;
+    :}
+    |Identificador:id Op_relacional:op Identificador:id2
+    {:
+	Nodo tmp = new Nodo("Boole",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(op,parser.contador++));
+        tmp.addHijo(new Nodo(id2,parser.contador++));
+        RESULT=tmp;
+    :}
+    |Identificador:id Op_relacional:op Comillas Comillas
+    {:
+	Nodo tmp = new Nodo("Boole",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(op,parser.contador++));
+        RESULT=tmp;
+    :}
+    |Identificador:id Op_relacional:op Comillas Identificador:id2 Comillas
+    {:
+	Nodo tmp = new Nodo("Boole",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(op,parser.contador++));
+        tmp.addHijo(new Nodo(id2,parser.contador++));
+        RESULT=tmp;
+    :}
+;
+
+IF_ELSE ::= 
+    If Parentesis_a SENTENCIA_BOOLEANA:obj Parentesis_c Llave_a SENTENCIA:obj2 Llave_c Else Llave_a SENTENCIA:obj3 Llave_c
+    {:
+        Nodo tmp= new Nodo("If_Else",parser.contador++);
+
+        Nodo nudo1 = new Nodo("if",parser.contador++);
+        
+        Nodo nudo2 = new Nodo("Condición",parser.contador++);
+        nudo2.addHijo((Nodo)obj);
+
+        Nodo nudo3 = new Nodo("Sentencia",parser.contador++);
+        nudo3.addHijo((Nodo)obj2);
+        
+        Nodo nudo4 = new Nodo("else",parser.contador++);
+
+        Nodo nudo5 = new Nodo("Sentencia",parser.contador++);
+        nudo5.addHijo((Nodo)obj3);
+
+        tmp.addHijo(nudo1);
+        tmp.addHijo(nudo2);
+        tmp.addHijo(nudo3);
+        tmp.addHijo(nudo4);
+        tmp.addHijo(nudo5);
+        RESULT=tmp;
+    :};
+
+WHILE ::= While Parentesis_a SENTENCIA_BOOLEANA:obj Parentesis_c Llave_a SENTENCIA:obj2 Llave_c
+    {:
+        Nodo tmp= new Nodo("While",parser.contador++);
+        tmp.addHijo(new Nodo("while",parser.contador++));
+
+        Nodo nudo1 = new Nodo("Condición",parser.contador++);
+        nudo1.addHijo((Nodo)obj);
+        tmp.addHijo(nudo1);
+
+        Nodo aux= new Nodo("Sentencia",parser.contador++);
+        aux.addHijo((Nodo)obj2);
+        tmp.addHijo(aux);
+        RESULT=tmp;
+    :}
+;
+
+DO_WHILE ::= Do Llave_a SENTENCIA:obj Llave_c While Parentesis_a SENTENCIA_BOOLEANA:obj2 Parentesis_c P_coma
+    {:
+        Nodo tmp= new Nodo("Do_While",parser.contador++);
+        tmp.addHijo(new Nodo("do",parser.contador++));
+        tmp.addHijo((Nodo)obj);   //ojo! Al añadirlo directo se elimina el problema de doble sentencia en el graph
+        tmp.addHijo(new Nodo("while",parser.contador++));
+        Nodo aux= new Nodo("Condición",parser.contador++);
+        aux.addHijo((Nodo)obj2);
+        tmp.addHijo(aux);
+        RESULT=tmp;
+    :}
+;
+
+FOR ::= For Parentesis_a SENTENCIA_FOR:obj Parentesis_c Llave_a SENTENCIA:obj2 Llave_c
+    {:
+        Nodo tmp= new Nodo("For",parser.contador++);
+        tmp.addHijo(new Nodo("for",parser.contador++));
+        tmp.addHijo((Nodo)obj);
+
+        Nodo aux= new Nodo("Sentencia",parser.contador++);
+        aux.addHijo((Nodo)obj2);
+        tmp.addHijo(aux);
+        RESULT=tmp;
+    :};
+
+SENTENCIA_FOR ::=
+    T_dato:dato_ Identificador:id Igual Numero:num P_coma SENTENCIA_BOOLEANA:obj P_coma DECLARACION_FOR:obj2
+    {:
+	Nodo tmp= new Nodo("Condición",parser.contador++);
+
+        Nodo Nodo1= new Nodo("Declaración",parser.contador++);
+
+        Nodo1.addHijo(new Nodo(dato_,parser.contador++));
+        Nodo1.addHijo(new Nodo(id,parser.contador++));
+        Nodo1.addHijo(new Nodo("=",parser.contador++));
+        Nodo1.addHijo(new Nodo(num,parser.contador++));
+
+        tmp.addHijo(Nodo1);
+        tmp.addHijo((Nodo)obj);
+        tmp.addHijo((Nodo)obj2);
+        RESULT=tmp;
+    :}
+    |Identificador:id Igual Numero:num P_coma SENTENCIA_BOOLEANA:obj P_coma DECLARACION_FOR:obj2
+    {:
+	Nodo tmp= new Nodo("Condición",parser.contador++);
+
+        Nodo Nodo1= new Nodo("Declaración",parser.contador++);
+        Nodo1.addHijo(new Nodo(id,parser.contador++));
+        Nodo1.addHijo(new Nodo("=",parser.contador++));
+        Nodo1.addHijo(new Nodo(num,parser.contador++));
+
+        tmp.addHijo(Nodo1);
+        tmp.addHijo((Nodo)obj);
+        tmp.addHijo((Nodo)obj2);
+        RESULT=tmp;
+    :}
+;
+DECLARACION_FOR ::= 
+    |Identificador:id Op_atribucion:Op Numero:num
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(Op,parser.contador++));
+        tmp.addHijo(new Nodo(num,parser.contador++));
+        RESULT=tmp;
+    :}
+    |Identificador:id Op_incremento:Op
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        tmp.addHijo(new Nodo(Op,parser.contador++));
+        RESULT=tmp;
+    :}
+    |Op_incremento:Op Identificador:id
+    {:
+	Nodo tmp = new Nodo("Declaración",parser.contador++);
+        tmp.addHijo(new Nodo(Op,parser.contador++));
+        tmp.addHijo(new Nodo(id,parser.contador++));
+        RESULT=tmp;
+    :}
+;

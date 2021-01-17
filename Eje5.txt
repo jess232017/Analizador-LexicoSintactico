@@ -1,0 +1,13 @@
+import java.util.Scanner;
+package count;
+public class Contador
+{
+    public static void main(String[] args) 
+    {
+        int contador = 0 ;
+        do {   
+                System.out.println ("Contando... " );
+                contador += 1;
+        } while (contador<10);
+    }
+}
